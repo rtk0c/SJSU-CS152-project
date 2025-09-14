@@ -21,71 +21,46 @@
 
 \author{
   \IEEEauthorblockN{1\textsuperscript{st} Tianyi Guan}
-  tianyi.guan@sjsu.edu
+  \IEEEauthorblockA{\textit{San Jose State University}\\
+  California, United States \\
+	tianyi.guan@sjsu.edu}
   \and
-  \IEEEauthorblockN{2\textsuperscript{nd} Emily XXX}
-  email address or ORCID
+  \IEEEauthorblockN{2\textsuperscript{nd} Emily Williams}
+  \IEEEauthorblockA{\textit{San Jose State University}\\
+  California, United States \\
+	emily.williams01@sjsu.edu}
 }
 
 \maketitle
 
+
 \begin{abstract}
-TODO
+This document is a proposal for the CS 152 course project.
+We propose a code golfing problem solver system based on using LLM to provide natural language understanding of the problem, followed by using a traditional parsing based code minifier to ``golf'' the solution.
 \end{abstract}
 
-\begin{IEEEkeywords}
-TODO
-\end{IEEEkeywords}
 
-\section{Introduction}
-TODO
+\section{Proposal}
+For the CS 152 coures project, we want to design a code golfing solver system, consisting of a LLM solver component and a traditional minifier component.
 
-Figure Labels: Use 8 point Times New Roman for Figure labels. Use words
-rather than symbols or abbreviations when writing Figure axis labels to
-avoid confusing the reader. As an example, write the quantity
-``Magnetization'', or ``Magnetization, M'', not just ``M''. If including
-units in the label, present them within parentheses. Do not label axes only
-with units. In the example, write ``Magnetization (A/m)'' or ``Magnetization
-\{A[m(1)]\}'', not just ``A/m''. Do not label axes with a ratio of
-quantities and units. For example, write ``Temperature (K)'', not
-``Temperature/K''.
+The LLM component.
+A LLM is prompted to read the input problem description written in English, and output a solution written in Python. We constrain the input problem space to those found in the ARC-AGI dataset. Each problem description consists of several example pairs of desired input/output, each being a 2d grid of different integers. The goal of the problem is to extrapolate a pattern from the examples, and write a Python function doing the transformation, using as little code as possible.
+We will use multi-shot prompting to let the LLM deduce the pattern from the example input/outputs in English, where LLMs excel in processing. Then, we will use LLM (potentially different model) let it generate the solution Python code from the problem description.
 
-\section*{Acknowledgment}
+The minifier component uses tradition parsing- and pattern-matching-based techniques to reduce the solution.
+Our ideal solution is a hybrid of AST structural reduction, and regex cleanser to remove extraneous whitespace.
+We will use CPython's AST module to obtain a parse tree of the pre-goled solution. Then, we will recursively traverse the parse tree, replacing known patterns with equivalent shorter forms.
+For example, given some array \verb|arr|, a standalone statement with \verb|arr.reverse()| to reverse it can be replaced with \verb|arr[::-1]| at its usages.
+A bigger example: a conditional move expression \verb|foo if cond else bar| can be replaced with \verb|[foo,bar][cond]| if foo and bar can be both evaluated (no side effect).
+There may be some edge cases the AST solution glazes over when focusing a specific part instead of the entire context of the problem, so it could lose nuance. 
 
-The preferred spelling of the word ``acknowledgment'' in America is without
-an ``e'' after the ``g''. Avoid the stilted expression ``one of us (R. B.
-G.) thanks $\ldots$''. Instead, try ``R. B. G. thanks$\ldots$''. Put sponsor
-acknowledgments in the unnumbered footnote on the first page.
-
-\section*{References}
-
-Please number citations consecutively within brackets \cite{b1}. The
-sentence punctuation follows the bracket \cite{b2}. Refer simply to the reference
-number, as in \cite{b3}---do not use ``Ref. \cite{b3}'' or ``reference \cite{b3}'' except at
-the beginning of a sentence: ``Reference \cite{b3} was the first $\ldots$''
-
-Number footnotes separately in superscripts. Place the actual footnote at
-the bottom of the column in which it was cited. Do not put footnotes in the
-abstract or reference list. Use letters for table footnotes.
-
-Unless there are six authors or more give all authors' names; do not use
-``et al.''. Papers that have not been published, even if they have been
-submitted for publication, should be cited as ``unpublished'' \cite{b4}. Papers
-that have been accepted for publication should be cited as ``in press'' \cite{b5}.
-Capitalize only the first word in a paper title, except for proper nouns and
-element symbols.
-
-For papers published in translation journals, please give the English
-citation first, followed by the original foreign-language citation \cite{b6}.
+A simpler alernative to AST structural reduction is a pure scanning/regex based mechanism that operates strictly over the program text, without getting a parse tree. This method in theory provides lower implementation complexity, at the cost of being less effective.
+It is not yet clear that which approach will make the most sense for this project. This is a question which we want to continuously investigate.
 
 \begin{thebibliography}{00}
-\bibitem{b1} G. Eason, B. Noble, and I. N. Sneddon, ``On certain integrals of Lipschitz-Hankel type involving products of Bessel functions,'' Phil. Trans. Roy. Soc. London, vol. A247, pp. 529--551, April 1955.
-\bibitem{b2} J. Clerk Maxwell, A Treatise on Electricity and Magnetism, 3rd ed., vol. 2. Oxford: Clarendon, 1892, pp.68--73.
-\bibitem{b3} I. S. Jacobs and C. P. Bean, ``Fine particles, thin films and exchange anisotropy,'' in Magnetism, vol. III, G. T. Rado and H. Suhl, Eds. New York: Academic, 1963, pp. 271--350.
-\bibitem{b4} K. Elissa, ``Title of paper if known,'' unpublished.
-\bibitem{b5} R. Nicole, ``Title of paper with only first word capitalized,'' J. Name Stand. Abbrev., in press.
-\bibitem{b6} Y. Yorozu, M. Hirano, K. Oka, and Y. Tagawa, ``Electron spectroscopy studies on magneto-optical media and plastic substrate interface,'' IEEE Transl. J. Magn. Japan, vol. 2, pp. 740--741, August 1987 [Digests 9th Annual Conf. Magnetics Japan, p. 301, 1982].
-\bibitem{b7} M. Young, The Technical Writer's Handbook. Mill Valley, CA: University Science, 1989.
+\bibitem{b1} François Chollet. ``On the Measure of Intelligence,'' in CoRR, vol. abs/1911.01547, 2019.
+\bibitem{b2} Dflook, ``Dflook/python-minifier: Transform python source code into its most compact representation,'' GitHub, https://github.com/dflook/python-minifier (accessed Sep. 13, 2025). 
+\bibitem{b3} ``terser/terser: JavaScript parser, mangler and compressor toolkit for ES6+'' GitHub, https://github.com/terser/terser (accessed Sep. 13, 2025). 
 \end{thebibliography}
 
 \end{document}
