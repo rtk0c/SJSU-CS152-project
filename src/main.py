@@ -6,17 +6,19 @@
 import ast
 import sys
 from ast_transforms import *
+from token_transforms import *
 
 with open(sys.argv[1], 'r') as f:
     source_code = f.read()
 
-ast = ast.parse(source_code)
+tree = ast.parse(source_code)
 
 renamer = VariableRenamer()
-transformed_tree = renamer.visit(ast)
+transformed_tree = renamer.visit(tree)
 
 ast.fix_missing_locations(transformed_tree)
 
 new_code = ast.unparse(transformed_tree)
+new_code = tokens_reduce(new_code)
 
 print(new_code)
