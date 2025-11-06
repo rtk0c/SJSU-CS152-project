@@ -4,3 +4,8 @@
 *.fdb_latexmk
 *.fls
 *.log
+
+__pycache__
+.venv
+dist
+out

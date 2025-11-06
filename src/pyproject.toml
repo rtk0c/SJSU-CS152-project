@@ -1,0 +1,7 @@
+[project]
+name = "cs152-project"
+version = "0.1.0"
+description = "Ciallo～(∠・ω< )"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
